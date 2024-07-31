@@ -112,4 +112,16 @@ risc_v_32bit_Single_Cycle_inst (
 // my first push test to github
 // clone test on desk and then push
 
-module
+
+
+
+cycle_counter     #(
+
+)
+cycle_counter(
+
+
+    .clk (s00_axi_aclk),
+    .reset_n(s00_axi_aresetn),
+    
+)
