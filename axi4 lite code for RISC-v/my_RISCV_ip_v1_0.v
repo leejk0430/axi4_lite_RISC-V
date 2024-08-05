@@ -3,19 +3,27 @@
 
 module my_RISCV_ip_v1_0 #
 (
-    paramter C_S00_AXI_ADDR_WIDTH 4,
-    paramter C_S00_AXI_DATA_WIDTH 32
+    paramter C_S00_AXI_DATA_WIDTH 32,
+    paramter C_S00_AXI_ADDR_WIDTH 5
 )
 (
 
 
     ///////////////user ports///////////////////
 
+
+    input  wire                                      w_i_idle,
+    input  wire                                      w_i_running,
+    input  wire                                      w_i_done,                                 
+
+    output wire [31:0]                               w_o_num_cycle,
+    output wire                                      w_o_run,
     output wire                                      w_mem_reset_n,
-    output wire                                      w_run_pc_in,
-    output wire [31:0]                               w_slv_reg1,
-    output wire [31:0]                               w_slv_reg2,
-    output wire [31:0]                               w_slv_reg3,
+
+
+    output wire                                      w_instruction_write,       
+    output wire [31:0]                               w_slv_reg5,                //instruction data
+    output wire [31:0]                               w_slv_reg6,                //instruction addr
 
 
 
@@ -63,18 +71,26 @@ module my_RISCV_ip_v1_0 #
 
 my_RISCV_ip_v1_0_s00_AXI #
 (
-    .C_S00_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),
-    .C_S00_AXI_ADDR_WIDTH(C_S_AXI_ADDR_WIDTH),
+    .C_S00_AXI_DATA_WIDTH(C_S00_AXI_DATA_WIDTH),
+    .C_S00_AXI_ADDR_WIDTH(C_S00_AXI_ADDR_WIDTH),
 )
 my_RISCV_ip_v1_0_s00_AXI_inst (
 
     ///////////user ports///////////////
    
-    .w_mem_reset_n(w_mem_reset_n,)
-    .w_run_pc_in(w_run_pc_in),
-    .w_slv_reg1(w_slv_reg1),
-    .w_slv_reg2(w_slv_reg2),
-    .w_slv_reg3(w_slv_reg3),
+
+    .w_i_idle(w_i_idle),
+    .w_i_running(w_i_running),
+    .w_i_done(w_i_done),
+
+    .w_o_num_cycle(w_o_num_cycle),
+    .w_o_run(w_o_run),
+    .w_mem_reset_n(w_mem_reset_n),
+
+
+    .w_instruction_write(w_instruction_write),
+    .w_slv_reg5(w_slv_reg5),
+    .w_slv_reg6(w_slv_reg6),
 
 
 

@@ -3,17 +3,24 @@
     module my_RISCV_ip_v1_0_s00_AXI #
     (
         parameter integer C_S00_AXI_DATA_WIDTH = 32;
-        parameter integer C_S00_AXI_ADDR_WIDTH = 4;  //because we use 4 register and each register is 4byte 4*4 = 16 (we use 16 byte) -> 4bits to represet each byte
+        parameter integer C_S00_AXI_ADDR_WIDTH = 5;  //because we use 7 (0~6) register and each register is 4byte 7*4 = 28 (we use 28 byte) -> 5bits to represet each byte
     )
     (
         ///////user adds ports start///////////
 
+        input wire                                  w_i_idle,                   //slv_reg0
+        input wire                                  w_i_running,                //slv_reg0
+        input wire                                  w_i_done,                   //slv_reg0
 
-        output wire                                 w_mem_reset_n,
-        output wire                                 w_run_pc_in,  
-        output wire [31 : 0]                        w_slv_reg1,
-        output wire [31 : 0]                        w_slv_reg2,
-        output wire [31 : 0]                        w_slv_reg3,
+        output wire [31 : 0]                        w_o_num_cycle,              //slv_reg1
+        output wire                                 w_o_run,                    //slv_reg2
+        output wire                                 w_mem_reset_n,              //slv_reg3
+
+
+
+        output wire                                 w_instruction_write,        //slv_reg4
+        output wire [31 : 0]                        w_slv_reg5,                 //slv_reg5
+        output wire [31 : 0]                        w_slv_reg6,                 //slv_reg6
 
 
 
@@ -188,6 +195,9 @@
             slv_reg1 <= 0;
             slv_reg2 <= 0;
             slv_reg3 <= 0;
+            slv_reg4 <= 0;
+            slv_reg5 <= 0;
+            slv_reg6 <= 0;
         end
         else begin
             if (slv_reg_wren) begin
@@ -216,11 +226,32 @@
                             slv_reg3[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                         end
                     end
+                    2'h4:
+                    for (byte_index = 0; byte_index <= (C_S00_AXI_DATA_WIDTH/8)-1; byte_index = byte_index + 1) begin
+                        if(S_AXI_WSTRB[byte_index]) begin
+                            slv_reg4[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
+                        end
+                    end
+                    2'h5:
+                    for (byte_index = 0; byte_index <= (C_S00_AXI_DATA_WIDTH/8)-1; byte_index = byte_index + 1) begin
+                        if(S_AXI_WSTRB[byte_index]) begin
+                            slv_reg5[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
+                        end
+                    end
+                    2'h6:
+                    for (byte_index = 0; byte_index <= (C_S00_AXI_DATA_WIDTH/8)-1; byte_index = byte_index + 1) begin
+                        if(S_AXI_WSTRB[byte_index]) begin
+                            slv_reg6[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
+                        end
+                    end
                 default : begin
                     slv_reg0 <= slv_reg0;
                     slv_reg1 <= slv_reg1;
                     slv_reg2 <= slv_reg2;
                     slv_reg3 <= slv_reg3;
+                    slv_reg4 <= slv_reg4;
+                    slv_reg5 <= slv_reg5;
+                    slv_reg6 <= slv_reg6;
                 end
                 endcase
             end
@@ -301,6 +332,9 @@
             2'h1 : reg_data_out <= slv_reg1;
             2'h2 : reg_data_out <= slv_reg2;
             2'h3 : reg_data_out <= slv_reg3;
+            2'h4 : reg_data_out <= slv_reg4;
+            2'h5 : reg_data_out <= slv_reg5;
+            2'h6 : reg_data_out <= slv_reg6;
             default : reg_data_out <= 0;
         endcase
     end
@@ -319,12 +353,50 @@
 
 
     ////////////////////////add user logic////////////////////////
+
+
+	reg r_done; // to keep done status, w_i_done is a 1 tick.
+	
+	always @(posedge S_AXI_ACLK) begin
+    	if(!S_AXI_ARESETN) begin  // sync reset_n
+    	    r_done <= 1'b0;  
+    	end else if (w_i_done) begin
+    	    r_done <= 1'b1;
+		end else if (w_o_run) begin
+			r_done <= 1'b0;
+		end  
+	// else. keep status
+	end
+
+
+
+    // generating tick signal for w_i_run
+    reg r_run;
+
+    always @(posedge S_AXI_ACLK) begin
+        if(!S_AXI_ARESETN) begin
+            r_run <= 0;
+        end
+        else begin
+            r_run <= slv_reg2[0];
+        end
+    end
+
+
+    assign slv_reg0[0]                = w_i_idle;                                                     //for reading
+    assign slv_reg0[1]                = w_i_running;                                                  //for reading
+    assign slv_reg0[2]                = r_done;                                                       //for reading (because w_i_done is a tick signal we need to keep the status)
+
+
+    assign w_o_num_cycle              = slv_reg1;                                                     //for writing
+    assign w_o_run                    = ((r_run == 1'b0) && slv_reg2[0] == 1'b1);                     //for writing (because w_o_run should be tick signal)
+    assign w_mem_reset_n              = slv_reg3[0];                                                  //for writing
+
+
     
-    assign w_mem_reset_n= slv_reg0[0]
-    assign w_run_pc_in = slv_reg0[1];
-    assign w_slv_reg1 = slv_reg1;
-    assign w_slv_reg2 = slv_reg2;
-    assign w_slv_reg3 = slv_reg3;
+    assign w_instruction_write        = slv_reg4[0];                                                   //for writing
+    assign w_slv_reg5                 = slv_reg5;                                                      //for writing
+    assign w_slv_reg6                 = slv_reg6;                                                      //for writing
 
 
     

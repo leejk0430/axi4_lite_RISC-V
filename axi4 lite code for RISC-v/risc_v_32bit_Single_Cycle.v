@@ -2,59 +2,26 @@
 
 module risc_v_32bit_Single_Cycle
 (
-    input clk, reset_n, mem_reset_n, run_pc_in, i_num_cycle
+    input clk, 
+    input reset_n, 
+    input mem_reset_n, w_i_running , w_i_done,
+    
     input instruction_write, 
     input [31:0]instruction_data, 
     input [7:0] instruction_addr
 );
+(
+    wire w_reset_n;
+
+    assign w_reset_n = ~((!reset_n) || (w_o_done));
 
 
-/* 
-
-localparameter  S_IDLE = 2'b00;
-localparameter  S_RUN  = 2'b01;
-localparameter  S_DONE = 2'b10;
-
-reg [1:0]   c_state;
-reg [1:0]   n_state; 
-
-always @(posedge clk) begin
-    if(!reset_n) begin
-        c_state <= S_IDLE;
-    end
-    else begin
-        c_state <= n_state;
-    end
-end
-
-
-always @(*) begin
-    case(c_state)
-    S_IDLE: if(i_run)
-        n_state = S_RUN;
-    S_RUN: if(is_done)
-        n_state = S_DONE;
-    S_DONE: n_state = S_IDLE;
-    default: n_state = c_state;
-    endcase
-end
-
-
-
-
-
-
-
-
-
-
-*/
     wire [6:0] opcode;
     wire [1:0] ALUOp, ImmSel;
     wire Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite;
 
 
-    Datapath_Unit Unit_DP(  .clk(clk),  .reset_n(reset_n),  .mem_reset_n(mem_reset_n),  .run_pc(run_pc),
+    Datapath_Unit Unit_DP(  .clk(clk),  .reset_n(w_reset_n),  .mem_reset_n(mem_reset_n),  .run_pc(w_o_running),
     .instruction_write(instruction_write),  .instruction_data(instruction_data),    .instruction_addr(instruction_addr),
     .ALUOp(ALUOp),  .ImmSel(ImmSel),    .Branch(Branch),    .MemRead(MemRead),   .MemtoReg(MemtoReg),   .MemWrite(MemWrite), 
     .ALUSrc(ALUSrc),    .RegWrite(RegWrite),    .opcode(opcode));
@@ -62,5 +29,6 @@ end
 
     Control_Unit Unit_Ctrl(    .opcode(opcode),   .ALUOp(ALUOp),     .ImmSel(ImmSel),   .Branch(Branch),    .MemRead(MemRead),
     .MemtoReg(MemtoReg),    .MemWrite(MemWrite),    .ALUSrc(ALUSrc),    .RegWrite(RegWrite));
+)
 
 endmodule
