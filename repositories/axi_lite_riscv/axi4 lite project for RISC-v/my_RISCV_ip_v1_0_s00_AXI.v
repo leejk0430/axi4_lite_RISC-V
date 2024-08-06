@@ -383,18 +383,34 @@
     end
 
 
+    //generating tick signal for w_instruction_write
+    reg r_instruction_write;
+
+    always @(posedge S_AXI_ACLK) begin
+        if(!S_AXI_ARESETN) begin
+            r_instruction_write <= 0;
+        end
+        else begin
+            r_instruction_write <= slv_reg4[0];
+        end
+    end
+
+
+
+
+
     assign slv_reg0[0]                = w_i_idle;                                                     //for reading
     assign slv_reg0[1]                = w_i_running;                                                  //for reading
     assign slv_reg0[2]                = r_done;                                                       //for reading (because w_i_done is a tick signal we need to keep the status)
 
 
     assign w_o_num_cycle              = slv_reg1;                                                     //for writing
-    assign w_o_run                    = ((r_run == 1'b0) && slv_reg2[0] == 1'b1);                     //for writing (because w_o_run should be tick signal)
+    assign w_o_run                    = ((r_run == 1'b0) && (slv_reg2[0] == 1'b1));                   //for writing (because w_o_run should be tick signal)
     assign w_mem_reset_n              = slv_reg3[0];                                                  //for writing
 
 
     
-    assign w_instruction_write        = slv_reg4[0];                                                   //for writing
+    assign w_instruction_write        = ((r_instruction_write == 1'b0) && (slv_reg4[0] == 1'b1);       //for writing (use tick)
     assign w_slv_reg5                 = slv_reg5;                                                      //for writing
     assign w_slv_reg6                 = slv_reg6;                                                      //for writing
 
