@@ -1,9 +1,9 @@
 module lab_RISCV #(
     
-    parameter C_S00_AXI_DATA_WIDTH 32,
-    parameter C_S00_AXI_ADDR_WIDTH 5,
+    parameter C_S00_AXI_DATA_WIDTH = 32,
+    parameter C_S00_AXI_ADDR_WIDTH = 5,
 
-    parameter NUM_CYCLE_BIT 32
+    parameter NUM_CYCLE_BIT = 32
 )
 (
 	input wire                                          s00_axi_aclk,
@@ -56,7 +56,7 @@ wire [31:0]             w_slv_reg6;
 my_RISCV_ip_v1_0 #(
 
     .C_S00_AXI_DATA_WIDTH(C_S00_AXI_DATA_WIDTH),
-    .C_S00_AXI_ADDR_WIDTH(C_S00_AXI_DATA_WIDTH)
+    .C_S00_AXI_ADDR_WIDTH(C_S00_AXI_ADDR_WIDTH)
 
 )
 my_RISCV_ip_v1_0_inst(
@@ -80,7 +80,7 @@ my_RISCV_ip_v1_0_inst(
 
     
     .s00_axi_aclk(s00_axi_aclk),
-    .s00_axi_areset(s00_axi_aresetn),
+    .s00_axi_aresetn(s00_axi_aresetn),
 
 
 
@@ -108,7 +108,7 @@ my_RISCV_ip_v1_0_inst(
     .s00_axi_rdata(s00_axi_rdata),
     .s00_axi_rvalid(s00_axi_rvalid),
     .s00_axi_rready(s00_axi_rready),
-    .s00_axi_rresp(s00_axi_rresp),
+    .s00_axi_rresp(s00_axi_rresp)
 );
 
 
@@ -117,7 +117,7 @@ my_RISCV_ip_v1_0_inst(
 
 risc_v_32bit_Single_Cycle #(
 
-    .NUM_CYCLE_BIT(NUM_CYCLE_BIT)
+
 
 )
 risc_v_32bit_Single_Cycle_inst (
@@ -134,19 +134,18 @@ risc_v_32bit_Single_Cycle_inst (
 
     .instruction_write(w_instruction_write),
     .instruction_data(w_slv_reg5),
-    .instruction_addr(w_slv_reg6),
-
+    .instruction_addr(w_slv_reg6)
 );
 
 
 
 
-cycle_counter #(
+core_cycle_counter #(
 
     .NUM_CYCLE_BIT(NUM_CYCLE_BIT)
 
 )
-cycle_counter(
+core_cycle_counter(
 
 
     .clk (s00_axi_aclk),
@@ -159,4 +158,6 @@ cycle_counter(
     .o_idle(w_o_idle),
     .o_running(w_o_running),
     .o_done(w_o_done)
-)
+);
+
+endmodule

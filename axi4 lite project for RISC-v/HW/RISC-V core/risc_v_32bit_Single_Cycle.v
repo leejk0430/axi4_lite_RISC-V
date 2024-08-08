@@ -10,10 +10,10 @@ module risc_v_32bit_Single_Cycle
     input [31:0]instruction_data, 
     input [7:0] instruction_addr
 );
-(
+
     wire w_reset_n;
 
-    assign w_reset_n = ~((!reset_n) || (w_o_done));
+    assign w_reset_n = ~((!reset_n) || (w_i_done));
 
 
     wire [6:0] opcode;
@@ -29,6 +29,6 @@ module risc_v_32bit_Single_Cycle
 
     Control_Unit Unit_Ctrl(    .opcode(opcode),   .ALUOp(ALUOp),     .ImmSel(ImmSel),   .Branch(Branch),    .MemRead(MemRead),
     .MemtoReg(MemtoReg),    .MemWrite(MemWrite),    .ALUSrc(ALUSrc),    .RegWrite(RegWrite));
-)
+
 
 endmodule

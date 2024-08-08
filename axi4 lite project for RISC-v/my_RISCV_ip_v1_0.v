@@ -1,10 +1,10 @@
 
-`timesclae 1ns / 1ps
+`timescale 1ns / 1ps
 
 module my_RISCV_ip_v1_0 #
 (
-    paramter C_S00_AXI_DATA_WIDTH 32,
-    paramter C_S00_AXI_ADDR_WIDTH 5
+    parameter C_S00_AXI_DATA_WIDTH = 32,
+    parameter C_S00_AXI_ADDR_WIDTH = 5
 )
 (
 
@@ -58,12 +58,12 @@ module my_RISCV_ip_v1_0 #
     input wire [C_S00_AXI_ADDR_WIDTH-1 : 0]      s00_axi_araddr,
     input wire [2 : 0]                           s00_axi_arprot,
     input wire                                   s00_axi_arvalid,
-    output wire                                  s00_axi_awready,
+    output wire                                  s00_axi_arready,
 
     output wire [C_S00_AXI_DATA_WIDTH-1 : 0]     s00_axi_rdata,
     output wire                                  s00_axi_rvalid,
     input wire                                   s00_axi_rready,
-    output wire [1 : 0]                          s00_axi_rresp,
+    output wire [1 : 0]                          s00_axi_rresp
 
 );
 
@@ -72,7 +72,7 @@ module my_RISCV_ip_v1_0 #
 my_RISCV_ip_v1_0_s00_AXI #
 (
     .C_S00_AXI_DATA_WIDTH(C_S00_AXI_DATA_WIDTH),
-    .C_S00_AXI_ADDR_WIDTH(C_S00_AXI_ADDR_WIDTH),
+    .C_S00_AXI_ADDR_WIDTH(C_S00_AXI_ADDR_WIDTH)
 )
 my_RISCV_ip_v1_0_s00_AXI_inst (
 
@@ -127,7 +127,7 @@ my_RISCV_ip_v1_0_s00_AXI_inst (
     .S_AXI_RDATA(s00_axi_rdata),
     .S_AXI_RVALID(s00_axi_rvalid),
     .S_AXI_RREADY(s00_axi_rready),
-    .S_AXI_RRESP(s00_axi_rresp),
+    .S_AXI_RRESP(s00_axi_rresp)
 );
 
 //////////user logic start///////////////

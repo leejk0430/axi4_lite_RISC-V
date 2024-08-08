@@ -1,5 +1,5 @@
-module cycle_counter #(
-    parameter NUM_CYCLE_BIT = 31
+module core_cycle_counter #(
+    parameter NUM_CYCLE_BIT = 32
 ) 
 (
 
@@ -11,25 +11,27 @@ module cycle_counter #(
 
     output                          o_idle,
     output                          o_running,
-    output                          o_done,
+    output                          o_done
 );
 
 
-localparameter  S_IDLE      = 2'b00;
-localparameter  S_RUNNING   = 2'b01;
-localparameter  S_DONE      = 2'b10;
-
-
-assign o_idle       = c_state == S_IDLE;
-assign o_running    = c_state == S_RUNNING;
-assign o_done       = c_state == S_DONE;
-
+localparam  S_IDLE      = 2'b00;
+localparam  S_RUNNING   = 2'b01;
+localparam  S_DONE      = 2'b10;
 
 
 reg [1:0]   c_state;
 reg [1:0]   n_state; 
 
 reg [NUM_CYCLE_BIT - 1 : 0]         num_cnt;
+
+reg     [NUM_CYCLE_BIT - 1 : 0]         cnt_always;
+
+
+
+assign o_idle       = c_state == S_IDLE;
+assign o_running    = c_state == S_RUNNING;
+assign o_done       = c_state == S_DONE;
 
 
 always @(posedge clk or negedge reset_n) begin
@@ -46,7 +48,7 @@ always @(*) begin
     case(c_state)
     S_IDLE: if(i_run)
         n_state = S_RUNNING;
-    S_RUNNING: if(cnt_always == num_cnt - 1);
+    S_RUNNING: if(cnt_always == (num_cnt - 1))
         n_state = S_DONE;
     S_DONE: n_state = S_IDLE;
     default: n_state = c_state;
@@ -58,7 +60,7 @@ end
 
 
 
-always @(posdege clk or negedge reset_n) begin
+always @(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
         num_cnt <= 0;
     end
@@ -72,14 +74,12 @@ end
 
 
 
-reg     [NUM_CYCLE_BIT - 1 : 0]         cnt_always;
-
 
 always @(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
         cnt_always <= 0;
     end
-    else if(cnt_always ==  num_cnt - 1) begin
+    else if(cnt_always ==  (num_cnt - 1)) begin
         cnt_always <= 0;
     end
     else if(o_running) begin
@@ -87,16 +87,4 @@ always @(posedge clk or negedge reset_n) begin
     end
 end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+endmodule

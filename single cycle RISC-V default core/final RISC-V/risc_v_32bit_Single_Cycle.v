@@ -10,12 +10,6 @@ module risc_v_32bit_Single_Cycle
 
 
 
-
-
-
-
-
-
     wire [6:0] opcode;
     wire [1:0] ALUOp, ImmSel;
     wire Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite;

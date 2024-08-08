@@ -2,8 +2,8 @@
 
     module my_RISCV_ip_v1_0_s00_AXI #
     (
-        parameter integer C_S00_AXI_DATA_WIDTH = 32;
-        parameter integer C_S00_AXI_ADDR_WIDTH = 5;  //because we use 7 (0~6) register and each register is 4byte 7*4 = 28 (we use 28 byte) -> 5bits to represet each byte
+        parameter integer C_S00_AXI_DATA_WIDTH = 32,
+        parameter integer C_S00_AXI_ADDR_WIDTH = 5  //because we use 7 (0~6) register and each register is 4byte 7*4 = 28 (we use 28 byte) -> 5bits to represet each byte
     )
     (
         ///////user adds ports start///////////
@@ -62,11 +62,11 @@
         output wire [C_S00_AXI_DATA_WIDTH-1 : 0]     S_AXI_RDATA,
         output wire                                  S_AXI_RVALID,
         input wire                                   S_AXI_RREADY,
-        output wire [1 : 0]                          S_AXI_RRESP,
-    )
+        output wire [1 : 0]                          S_AXI_RRESP
+    );
     
     localparam integer  ADDR_LSB = (C_S00_AXI_DATA_WIDTH/32) + 1;
-    localparam integer  OPT_MEM_ADDR_BITS = 1;
+    localparam integer  OPT_MEM_ADDR_BITS = 2;
 
     integer             byte_index;
 
@@ -74,10 +74,10 @@
     reg [C_S00_AXI_DATA_WIDTH-1 : 0] slv_reg1;
     reg [C_S00_AXI_DATA_WIDTH-1 : 0] slv_reg2;
     reg [C_S00_AXI_DATA_WIDTH-1 : 0] slv_reg3;
+    reg [C_S00_AXI_DATA_WIDTH-1 : 0] slv_reg4;
+    reg [C_S00_AXI_DATA_WIDTH-1 : 0] slv_reg5;
+    reg [C_S00_AXI_DATA_WIDTH-1 : 0] slv_reg6;
 
-
-
-    reg [C_S00_AXI_DATA_WIDTH-1 : 0]            reg_data_out;
 
     
 
@@ -191,7 +191,7 @@
 
     always @(posedge S_AXI_ACLK) begin
         if (!S_AXI_ARESETN) begin
-            slv_reg0 <= 0;
+        //  slv_reg0 <= 0; only use slv_reg0 for reading 
             slv_reg1 <= 0;
             slv_reg2 <= 0;
             slv_reg3 <= 0;
@@ -201,51 +201,51 @@
         end
         else begin
             if (slv_reg_wren) begin
-                case (axi_awaddr[ADDR_LSB + OPT_MEM_ADDR_BITS : ADDR_LSB])     //[3:2] axi address memory is currently usig 4 (if using 16 you [5:2])
-                    2'h0:
+                case (axi_awaddr[ADDR_LSB + OPT_MEM_ADDR_BITS : ADDR_LSB])     //[4:2] axi address memory is currently using 8 (if using 16 you [5:2])
+                /*  3'h0:
                     for (byte_index = 0; byte_index <= (C_S00_AXI_DATA_WIDTH/8)-1; byte_index = byte_index + 1) begin
                         if(S_AXI_WSTRB[byte_index]) begin
                             slv_reg0[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                         end
-                    end
-                    2'h1:
+                    end */ //only use slv_reg0 for reading 
+                    3'h1:
                     for (byte_index = 0; byte_index <= (C_S00_AXI_DATA_WIDTH/8)-1; byte_index = byte_index + 1) begin
                         if(S_AXI_WSTRB[byte_index]) begin
                             slv_reg1[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                         end
                     end
-                    2'h2:
+                    3'h2:
                     for (byte_index = 0; byte_index <= (C_S00_AXI_DATA_WIDTH/8)-1; byte_index = byte_index + 1) begin
                         if(S_AXI_WSTRB[byte_index]) begin
                             slv_reg2[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                         end
                     end
-                    2'h3:
+                    3'h3:
                     for (byte_index = 0; byte_index <= (C_S00_AXI_DATA_WIDTH/8)-1; byte_index = byte_index + 1) begin
                         if(S_AXI_WSTRB[byte_index]) begin
                             slv_reg3[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                         end
                     end
-                    2'h4:
+                    3'h4:
                     for (byte_index = 0; byte_index <= (C_S00_AXI_DATA_WIDTH/8)-1; byte_index = byte_index + 1) begin
                         if(S_AXI_WSTRB[byte_index]) begin
                             slv_reg4[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                         end
                     end
-                    2'h5:
+                    3'h5:
                     for (byte_index = 0; byte_index <= (C_S00_AXI_DATA_WIDTH/8)-1; byte_index = byte_index + 1) begin
                         if(S_AXI_WSTRB[byte_index]) begin
                             slv_reg5[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                         end
                     end
-                    2'h6:
+                    3'h6:
                     for (byte_index = 0; byte_index <= (C_S00_AXI_DATA_WIDTH/8)-1; byte_index = byte_index + 1) begin
                         if(S_AXI_WSTRB[byte_index]) begin
                             slv_reg6[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                         end
                     end
                 default : begin
-                    slv_reg0 <= slv_reg0;
+                //  slv_reg0 <= slv_reg0;
                     slv_reg1 <= slv_reg1;
                     slv_reg2 <= slv_reg2;
                     slv_reg3 <= slv_reg3;
@@ -328,13 +328,13 @@
     always @(*)
     begin
         case (axi_araddr[OPT_MEM_ADDR_BITS + ADDR_LSB : ADDR_LSB])
-            2'h0 : reg_data_out <= slv_reg0;
-            2'h1 : reg_data_out <= slv_reg1;
-            2'h2 : reg_data_out <= slv_reg2;
-            2'h3 : reg_data_out <= slv_reg3;
-            2'h4 : reg_data_out <= slv_reg4;
-            2'h5 : reg_data_out <= slv_reg5;
-            2'h6 : reg_data_out <= slv_reg6;
+            3'h0 : reg_data_out <= slv_reg0;
+            3'h1 : reg_data_out <= slv_reg1;
+            3'h2 : reg_data_out <= slv_reg2;
+            3'h3 : reg_data_out <= slv_reg3;
+            3'h4 : reg_data_out <= slv_reg4;
+            3'h5 : reg_data_out <= slv_reg5;
+            3'h6 : reg_data_out <= slv_reg6;
             default : reg_data_out <= 0;
         endcase
     end
@@ -397,11 +397,17 @@
 
 
 
+    always @(posedge S_AXI_ACLK) begin
+        if(!S_AXI_ARESETN) begin
+            slv_reg0 <= 0;
+        end
+        else begin
+            slv_reg0[0] <= w_i_idle;                                                                //for reading
+            slv_reg0[1] <= w_i_running;                                                             //for reading 
+            slv_reg0[2] <= r_done;                                                                  //for reading (because w_i_done is a tick signal we need to keep the status)
+        end
+    end
 
-
-    assign slv_reg0[0]                = w_i_idle;                                                     //for reading
-    assign slv_reg0[1]                = w_i_running;                                                  //for reading
-    assign slv_reg0[2]                = r_done;                                                       //for reading (because w_i_done is a tick signal we need to keep the status)
 
 
     assign w_o_num_cycle              = slv_reg1;                                                     //for writing
@@ -410,7 +416,7 @@
 
 
     
-    assign w_instruction_write        = ((r_instruction_write == 1'b0) && (slv_reg4[0] == 1'b1);       //for writing (use tick)
+    assign w_instruction_write        = ((r_instruction_write == 1'b0) && (slv_reg4[0] == 1'b1));       //for writing (use tick)
     assign w_slv_reg5                 = slv_reg5;                                                      //for writing
     assign w_slv_reg6                 = slv_reg6;                                                      //for writing
 
