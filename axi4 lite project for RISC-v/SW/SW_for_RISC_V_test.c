@@ -1,8 +1,10 @@
+//must use main IP name as lab_RISCV to use XPAR_LAB_RISCV_0_BASEADDR
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 #include "xparameters.h"
 #include "xil_io.h"
+#include <unistd.h>
 
 
 #define Reset 1
@@ -45,9 +47,9 @@ int main() {
 
 
         if (data == Reset){
-            Xil_Out32((XPAR_RISC_V_LAB_0_BASEADDR) + (reg_num_3*AXI_DATA_BYTE), (u32)(1));
-            printf("reseting...\n");
-            Xil_Out32((XPAR_RISC_V_LAB_0_BASEADDR) + (reg_num_3*AXI_DATA_BYTE), (u32)(0));
+            Xil_Out32((XPAR_LAB_RISCV_0_BASEADDR) + (reg_num_3*AXI_DATA_BYTE), (u32)(1));
+            printf("resetting...\n");
+            Xil_Out32((XPAR_LAB_RISCV_0_BASEADDR) + (reg_num_3*AXI_DATA_BYTE), (u32)(0));
             printf("reset complete!\n");
         }
         else if(data == Write){
@@ -75,27 +77,28 @@ int main() {
             }
 
             */
-            Xil_Out32((XPAR_RISC_V_LAB_0_BASEADDR) + (reg_num_5*AXI_DATA_BYTE), (u32)(instruction));
-            Xil_Out32((XPAR_RISC_V_LAB_0_BASEADDR) + (reg_num_6*AXI_DATA_BYTE), (u32)(inst_reg_addr));
-            Xil_Out32((XPAR_RISC_V_LAB_0_BASEADDR) + (reg_num_1*AXI_DATA_BYTE), (u32)(4));
+            printf("convert complete\n");
+            Xil_Out32((XPAR_LAB_RISCV_0_BASEADDR) + (reg_num_5*AXI_DATA_BYTE), (u32)(instruction));
+            Xil_Out32((XPAR_LAB_RISCV_0_BASEADDR) + (reg_num_6*AXI_DATA_BYTE), (u32)(inst_reg_addr));
+            Xil_Out32((XPAR_LAB_RISCV_0_BASEADDR) + (reg_num_1*AXI_DATA_BYTE), (u32)(4));
             printf("write complete!\n");
         }
         else if(data == Run) {
             printf("input the number of cycle you want to run the RISC-V core:\n");
             scanf("%d", &num_cycle);
             
-            Xil_Out32((XPAR_RISC_V_LAB_0_BASEADDR) + (reg_num_1*AXI_DATA_BYTE), (u32)(num_cycle));
+            Xil_Out32((XPAR_LAB_RISCV_0_BASEADDR) + (reg_num_1*AXI_DATA_BYTE), (u32)(num_cycle));
             
             printf("Do you want to run %d cycle for the core?(y/n):",num_cycle);
             scanf(" %c", &run_core);
             while(1){
                 if(run_core == 'y'){
-                    Xil_Out32((XPAR_RISC_V_LAB_0_BASEADDR) + (reg_num_2*AXI_DATA_BYTE), (u32)(1));
+                    Xil_Out32((XPAR_LAB_RISCV_0_BASEADDR) + (reg_num_2*AXI_DATA_BYTE), (u32)(1));
                     printf("Core currently running\n");
                     break;
                 }
                 else if(run_core == 'n'){
-                    Xil_Out32((XPAR_RISC_V_LAB_0_BASEADDR) + (reg_num_2*AXI_DATA_BYTE), (u32)(0));
+                    Xil_Out32((XPAR_LAB_RISCV_0_BASEADDR) + (reg_num_2*AXI_DATA_BYTE), (u32)(0));
                     break;
                 }
                 else {
@@ -105,7 +108,7 @@ int main() {
             }
             //reading the status
             while (1) {
-            u32 read_status = Xil_In32((XPAR_RISC_V_LAB_0_BASEADDR) + (reg_num_0*AXI_DATA_BYTE));
+            u32 read_status = Xil_In32((XPAR_LAB_RISCV_0_BASEADDR) + (reg_num_0*AXI_DATA_BYTE));
                 if(read_status == 2){
                     // slv_reg0[1] <- running
                     printf("Core status is 'running'");
@@ -117,12 +120,12 @@ int main() {
                 else if(read_status == 5){
                     //slv_reg0[0] <- idle
                     printf("Core status is 'idle' after 'done' ");
-                    break
+                    break;
                 }
             }
             /*printf("press 1 to read status :/n");
             if(status_confirm == 1){
-                u32 read_status = Xil_In32((XPAR_RISC_V_LAB_0_BASEADDR) + (reg_num_0*AXI_DATA_BYTE));
+                u32 read_status = Xil_In32((0x40000000) + (reg_num_0*AXI_DATA_BYTE));
 
 
             }*/

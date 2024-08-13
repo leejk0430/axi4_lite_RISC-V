@@ -85,7 +85,7 @@
     wire slv_reg_rden;
 
     reg                                         axi_awready;
-    reg                                         aw_en;
+    reg                                         aw_en = 1;
     reg [C_S00_AXI_ADDR_WIDTH-1 : 0]            axi_awaddr;
     
     reg                                         axi_wready;

@@ -41,7 +41,7 @@ initial begin
     instruction_addr <= 7'b000010;
     instruction_data <= 32'b10100010101010010101010101001100010101010; blah blah blah
 
-    .
+    00000000010100111000000110010011
     .
     .
 
